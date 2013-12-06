@@ -1,0 +1,159 @@
+using UnityEngine;
+using System.Collections;
+
+// UI 클래스들은 죄다 이놈을 상속 받아서 사용한다.
+// 왜 ... 매니저 한넘이 씬들을 관리 할라고....
+ public  abstract  class  BaseUI : MonoBehaviour 
+{
+	public  AManager.SCENE_TYPE    thisScene  {  set;   get;  }
+	
+	public  abstract  void CustomUpdate();
+	
+	public  abstract  void CustomInit() ;
+	
+	public  abstract  void CustomRelease() ;
+	
+}
+
+
+class GameManager : BaseUI {
+	
+	public 	BaseUI  thisClass 			{ set; get;}
+	
+	private  NetworkManager        networkManager ;
+	
+	
+	
+	
+	// Use this for initialization
+	IEnumerator   Start () {
+		
+//		networkManager = this.gameObject.AddComponent< NetworkManager >() ;
+	
+		audio.Play () ;
+		
+		yield  return  new  WaitForSeconds ( 1 ) ;
+		
+		SceneSwitch ( AManager.SCENE_TYPE.MAIN_MENU) ;
+		
+		this.CustomInit() ;	
+		
+	
+	}
+	
+	public override void CustomInit ()
+	{
+		DontDestroyOnLoad( this.gameObject ) ;
+	}
+	
+	
+	// Update is called once per frame
+	void Update () {
+	
+		if ( !AManager.isPause )
+		{
+//			networkManager.NetworkUpdate() ;
+			CustomUpdate () ;
+		}
+	}
+	
+	public void   SceneSwitch (  AManager.SCENE_TYPE scenename )
+	{
+		if ( thisClass != null )
+		{
+			Debug.Log ( "Break" ) ;
+			DestroyObject(  thisClass ) ;
+			System.GC.Collect() ;
+		}
+		
+	 	switch ( scenename )
+		{
+        	case  AManager.SCENE_TYPE.MAIN_MENU : 
+        		thisClass = this.gameObject.AddComponent< MainScene >() ;		
+        		break ;
+        	
+        	case AManager.SCENE_TYPE.MAIN_OPTION :  
+        		thisClass  =  this.gameObject.AddComponent< OptionScene >() ;
+        		break ;
+        	
+        	case AManager.SCENE_TYPE.MAIN_DECKEDIT : 
+        		thisClass  =  this.gameObject.AddComponent< DeckEditScene >() ;
+        		break;
+        		
+        	case AManager.SCENE_TYPE.LOGO :
+		//		thisClass  =  this.gameObject.AddComponent< Logo  >() ;
+        		break ;
+        		
+        	case AManager.SCENE_TYPE.MAIN_PVE :
+        		thisClass  =  this.gameObject.AddComponent< PVEScene >() ;
+        		break;
+        		
+        	case AManager.SCENE_TYPE.MAIN_PVP :
+        		thisClass  =  this.gameObject.AddComponent< PVPScene >() ;
+        		break ;
+        		
+			case AManager.SCENE_TYPE.PVP_START :
+        		thisClass  =  this.gameObject.AddComponent< VSMatch >() ;
+        		break ;
+			
+        	case AManager.SCENE_TYPE.MAIN_RANKING :
+        		thisClass  =  this.gameObject.AddComponent< RankingScene >() ;
+        		break ;
+        		
+        	case AManager.SCENE_TYPE.MAIN_SHOP :
+        		thisClass  =  this.gameObject.AddComponent< ShopScene >() ;
+        		break ;
+        		
+        	case AManager.SCENE_TYPE.MAIN_USERINFOMATION :
+        		thisClass  =  this.gameObject.AddComponent< UserInfoScene >() ;
+        		break ;
+        		
+		}
+		
+		print( "thisClass : " +  thisClass.thisScene.ToString()  ) ;
+		
+		thisClass.thisScene =  scenename ;
+	
+		Application.LoadLevel(  thisClass.thisScene.ToString() ) ;
+		
+		print (" Done " ) ;
+		
+	}
+	
+	
+	public override void CustomUpdate ()
+	{
+		if (  thisClass != null )
+		{
+			 this.thisClass.CustomUpdate () ;
+		}
+		
+		if (  Input.GetKeyUp(KeyCode.Escape) )
+		{
+			Application.Quit () ;
+		}
+	}
+	
+	
+	
+	public override void CustomRelease ()
+	{
+		thisClass = null ;
+		networkManager = null ;
+		DestroyObject ( networkManager ) ;
+		System.GC.Collect() ;
+	}
+	
+	
+	void OnDisable ()
+	{
+		if (  thisClass  != null )
+		{
+			thisClass.CustomRelease() ;
+		}
+		this.CustomRelease () ;
+		
+	}
+}
+
+
