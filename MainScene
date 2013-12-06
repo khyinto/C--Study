@@ -1,0 +1,121 @@
+using UnityEngine;
+using System.Collections;
+
+public  class MainScene  : BaseUI  {
+
+	private  delegate   void  delegateSceneChange ( AManager.SCENE_TYPE  scene ) ;
+	private  delegateSceneChange     SceneMove ;
+
+	private RaycastHit  hit ;
+	private Ray             ray ;
+	
+	private    tk2dUIManager      UIManager ;
+	private    tk2dUICamera        uicam ;
+	
+	// Use this for initialization
+	void Awake ()
+	{
+		SceneMove = new delegateSceneChange ( SceneSwitch ) ;
+	}
+	
+	void Start () {
+	
+		
+		this.CustomInit() ;
+	}
+	
+	// Update is called once per frame
+	void   Update () {
+	
+	}
+	
+	public override void CustomInit ()
+	{
+		
+		
+		Debug.Log ( "MainScene" ) ;
+	}
+	
+	public override    void CustomUpdate ()
+	{
+		ray =  Camera.main.ScreenPointToRay (  Input.mousePosition ) ;
+		
+		if (  Input.GetMouseButtonUp(0) )
+		{
+			if (  Physics.Raycast ( ray , out hit  ))
+			{
+				switch (  hit.transform.name )
+				{
+					case "deck" :  DeckPage() ;
+						print ( "Deck" ) ;
+						break ;
+					case "option" : OptionPage() ;
+						print( "Option" ) ;
+						break ;
+					case "quest" : PVEPage () ;
+						print ( "PVE" ) ;
+						break ;
+					case "dual" : PVPPage () ;
+						print( "PVP" ) ;
+						break ;
+					case "ranking" : RankingPage () ;
+						print( "Ranking" ) ;
+						break ;
+					case "shop" : ShopPage () ;
+						print( "Shop" ) ;
+						break ;
+				}
+				
+			}
+			
+		}
+		
+		
+	}
+	
+	public override void CustomRelease ()
+	{
+		
+	}
+	
+	void   SceneSwitch ( AManager.SCENE_TYPE  scenename  )
+	{
+		this.GetComponent< GameManager >().SceneSwitch ( scenename ) ;
+		
+	}
+	
+	public void  DeckPage ( )
+	{
+		Debug.Log("Hit") ;
+		this.SceneMove( AManager.SCENE_TYPE.MAIN_DECKEDIT ) ;
+		
+		
+	}
+	void  OptionPage ( )
+	{
+		this.SceneMove ( AManager.SCENE_TYPE.MAIN_OPTION ) ;
+	}
+	
+	void PVEPage ()
+	{
+		this.SceneMove ( AManager.SCENE_TYPE.MAIN_PVE ) ;
+	}
+	
+	void PVPPage ()
+	{
+		this.SceneMove ( AManager.SCENE_TYPE.MAIN_PVP ) ;
+	}
+	
+	void RankingPage ()
+	{
+		this.SceneMove ( AManager.SCENE_TYPE.MAIN_RANKING ) ;
+	}
+	
+	void ShopPage ()
+	{
+		this.SceneMove ( AManager.SCENE_TYPE.MAIN_SHOP ) ;
+	}
+	
+	
+	
+}
